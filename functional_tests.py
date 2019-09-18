@@ -1,7 +1,7 @@
 from selenium import webdriver
 import unittest
 
-class NewVisitorTest(unittest.TestCase):
+class HomePageTest(unittest.TestCase):
 	
 	def setUp(self):
 		self.browser = webdriver.Firefox()
@@ -9,36 +9,30 @@ class NewVisitorTest(unittest.TestCase):
 	def tearDown(self):
 		self.browser.quit()
 
-	def test_can_start_a_list_and_retrieve_it_later(self):
+	def test_can_access_homepage_view_with_fullname_innit(self):
 
-		# Edith has heard about a cool new online to-do app. She goes
-		# to check out its homepage
+		name = "Benny William Pardede"
+		npm = "1606917550"
+		role = "trequartista"
+
+		# Benny needs to show make an introductory homepage of himself
+		# Benny had filled the landing page with internal gags within himself
+		# Benny needs help
+
+		# He opens the browser to open the page
 		self.browser.get('http://localhost:8000')
-		
-		# She notices the page title and header mention to-do lists
-		self.assertIn('To-Do', self.browser.title)
-		self.fail("Finish The Test!")
 
-		# She is invited to enter a to-do item straight away
+		# He notices the page title goes 'Homepage'
+		self.assertEquals('Homepage', self.browser.title)
 
-		# She types "Buy peacock feathers" into a text box (Edith's hobby
-		# is tying fly-fishing lures)
+		# There's his birth name
+		self.assertIn(name, self.browser.find_element_by_id('name'))
 
-		# When she hits enter, the page updates, and now the page lists
-		# "1: Buy peacock feathers" as an item in a to-do list
+		# That's just his alias
+		self.assertIn(role, self.browser.find_element_by_id('alias'))
 
-		# There is still a text box inviting her to add another item. She
-		# enters "Use peacock feathers to make a fly" (Edith is very methodical)
-
-		# The page updates again, and now shows both items on her list
-
-		# Edith wonders whether the site will remember her list. Then she sees
-		# that the site has generated a unique URL for her -- there is some
-		# explanatory text to that effect.
-
-		# She visits that URL - her to-do list is still there.
-
-		# Satisfied, she goes back to sleep
+		# His Student Id
+		self.assertIn(npm, self.browser.find_element_by_id('npm'))
 
 if __name__ == '__main__':
 	unittest.main(warnings='ignore')
