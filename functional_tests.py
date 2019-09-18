@@ -23,7 +23,7 @@ class HomePageTest(unittest.TestCase):
 		self.browser.get('http://localhost:8000')
 
 		# He notices the page title goes 'Homepage'
-		self.assertEquals('Homepage', self.browser.title)
+		self.assertEquals('HomePage', self.browser.title)
 
 		# There's his birth name
 		self.assertIn(name, self.browser.find_element_by_id('name'))
