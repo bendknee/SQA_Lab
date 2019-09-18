@@ -16,4 +16,5 @@ def home_page(request):
 				
 			</body>
 		</html>'''
+		
 	return HttpResponse(html_payload)
