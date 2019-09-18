@@ -26,13 +26,13 @@ class HomePageTest(unittest.TestCase):
 		self.assertEquals('HomePage', self.browser.title)
 
 		# There's his birth name
-		self.assertIn(name, self.browser.find_element_by_id('name'))
+		self.assertIn(name, self.browser.find_element_by_id('name').text)
 
 		# That's just his alias
-		self.assertIn(role, self.browser.find_element_by_id('alias'))
+		self.assertIn(role, self.browser.find_element_by_id('alias').text)
 
 		# His Student Id
-		self.assertIn(npm, self.browser.find_element_by_id('npm'))
+		self.assertIn(npm, self.browser.find_element_by_id('npm').text)
 
 if __name__ == '__main__':
 	unittest.main(warnings='ignore')

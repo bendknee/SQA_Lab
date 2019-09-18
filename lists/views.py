@@ -10,9 +10,9 @@ def home_page(request):
 			<body>
 
 				<h4>The name's Benny.</h4>
-				<h1>Benny William Pardede</h1>
-				<p>But they usually call me the <strong>trequartista</strong></p>
-				<p>- 1606917550</p>
+				<h1 id="name">Benny William Pardede</h1>
+				<p id="alias">But they usually call me the <strong>trequartista</strong></p>
+				<p id="npm">- 1606917550</p>
 				
 			</body>
 		</html>'''
