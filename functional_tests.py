@@ -5,7 +5,7 @@ from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 
 
-class NewVisitorTest(unittest.TestCase):
+class HomePageTest(unittest.TestCase):
 
     def setUp(self):
         self.browser = webdriver.Firefox()
@@ -66,6 +66,30 @@ class NewVisitorTest(unittest.TestCase):
         # She visits that URL - her to-do list is still there.
 
         # Satisfied, she goes back to sleep
+
+    def test_can_access_homepage_view_with_fullname_innit(self):
+        name = "Benny William Pardede"
+        npm = "1606917550"
+        role = "trequartista"
+
+        # Benny needs to show make an introductory homepage of himself
+        # Benny had filled the landing page with internal gags within himself
+        # Benny needs help
+
+        # He opens the browser to open the page
+        self.browser.get('http://localhost:8000')
+
+        # He notices the page title goes 'Homepage'
+        self.assertEquals('HomePage', self.browser.title)
+
+        # There's his birth name
+        self.assertIn(name, self.browser.find_element_by_id('name').text)
+
+        # That's just his alias
+        self.assertIn(role, self.browser.find_element_by_id('alias').text)
+
+        # His Student Id
+        self.assertIn(npm, self.browser.find_element_by_id('npm').text)
 
 if __name__ == '__main__':
     unittest.main(warnings='ignore')

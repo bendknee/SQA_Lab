@@ -21,6 +21,22 @@ class HomePageTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response['location'], '/')
 
+	def test_home_page_returns_correct_html(self):
+
+		name = "Benny William Pardede"
+		npm = "1606917550"
+		role = "trequartista"
+
+		request = HttpRequest()
+		response = home_page(request)
+		html = response.content.decode('utf8')
+		self.assertTrue(html.startswith('<html>'))
+		self.assertIn('<title>HomePage</title>', html)
+		self.assertIn(name, html)
+		self.assertIn(npm, html)
+		self.assertIn(role, html)
+		self.assertTrue(html.endswith('</html>'))
+
     def test_only_saves_items_when_necessary(self):
         self.client.get('/')
         self.assertEqual(Item.objects.count(), 0)
