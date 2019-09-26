@@ -82,6 +82,7 @@ class HomePageTest(unittest.TestCase):
         # Benny closes the page, continues to practice
 
     def test_homepage_will_pop_different_comment_depending_on_todo_list_quantity(self):
+        self.browser.get('http://localhost:8000')
         # Benny opens the page again, notices that the motivational comment has changed.
         # Probably because now Benny has some to-do items listed on the page.
         comment = self.browser.find_element_by_id('motivation_comment')
