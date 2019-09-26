@@ -1,20 +1,12 @@
-from django.shortcuts import render
-from django.http import HttpResponse
+from django.shortcuts import render, redirect
+
+from lists.models import Item
+
 
 def home_page(request):
+    if request.method == 'POST':
+        Item.objects.create(text=request.POST['item_text'])
+        return redirect('/')
 
-	html_payload = '''<html>
-			<head>
-				<title>HomePage</title>
-			</head>
-			<body>
-
-				<h4>The name's Benny.</h4>
-				<h1 id="name">Benny William Pardede</h1>
-				<p id="alias">But they usually call me the <strong>trequartista</strong></p>
-				<p id="npm">- 1606917550</p>
-				
-			</body>
-		</html>'''
-		
-	return HttpResponse(html_payload)
+    items = Item.objects.all()
+    return render(request, 'home.html', {'items': items})
