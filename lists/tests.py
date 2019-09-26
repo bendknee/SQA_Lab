@@ -68,8 +68,8 @@ class HomePageTest(TestCase):
         Item.objects.create(text='item 5')
 
         response = self.client.get('/')
-        self.assertIn("There's no such thing as too much to do for a trequartista. "
-                      "They're the team's attack organizer after all",
+        self.assertIn("There are no such thing as too much to do for a trequartista. "
+                      "They are the attack organizer after all",
                       response.content.decode())
 
 

@@ -114,8 +114,8 @@ class HomePageTest(unittest.TestCase):
         # to-do items unfinished right now.
         comment = self.browser.find_element_by_id('motivation_comment')
         self.assertEqual(comment.text,
-                         "There's no such thing as too much to do for a trequartista. "
-                         "They're the team's attack organizer after all")
+                         "There are no such thing as too much to do for a trequartista. "
+                         "They are the attack organizer after all")
 
 
 if __name__ == '__main__':
