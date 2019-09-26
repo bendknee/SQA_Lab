@@ -47,11 +47,12 @@ class HomePageTest(TestCase):
         self.assertIn('itemey 1', response.content.decode())
         self.assertIn('itemey 2', response.content.decode())
 
-    def test_display_different_comment_depending_todo_list_quantity(self):
+    def test_display_comment_if_empty_todo_list(self):
         response = self.client.get('/')
         self.assertIn('If a trequartista is doing nothing on an attack, then they have failed',
                       response.content.decode())
 
+    def test_display_comment_if_todo_items_less_than_five(self):
         Item.objects.create(text='item 1')
         Item.objects.create(text='item 2')
 
@@ -59,6 +60,9 @@ class HomePageTest(TestCase):
         self.assertIn('A trequartista always check more things to do than losing its man marker',
                       response.content.decode())
 
+    def test_display_comment_if_todo_items_greater_equal_than_five(self):
+        Item.objects.create(text='item 1')
+        Item.objects.create(text='item 2')
         Item.objects.create(text='item 3')
         Item.objects.create(text='item 4')
         Item.objects.create(text='item 5')
