@@ -21,21 +21,18 @@ class HomePageTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response['location'], '/')
 
-	def test_home_page_returns_correct_html(self):
+    def test_home_page_shows_developer_bio(self):
+        name = "Benny William Pardede"
+        npm = "1606917550"
+        role = "trequartista"
 
-		name = "Benny William Pardede"
-		npm = "1606917550"
-		role = "trequartista"
-
-		request = HttpRequest()
-		response = home_page(request)
-		html = response.content.decode('utf8')
-		self.assertTrue(html.startswith('<html>'))
-		self.assertIn('<title>HomePage</title>', html)
-		self.assertIn(name, html)
-		self.assertIn(npm, html)
-		self.assertIn(role, html)
-		self.assertTrue(html.endswith('</html>'))
+        response = self.client.get('/')
+        html = response.content.decode('utf8')
+        self.assertTrue(html.startswith('<html>'))
+        self.assertIn(name, html)
+        self.assertIn(npm, html)
+        self.assertIn(role, html)
+        self.assertTrue(html.endswith('</html>'))
 
     def test_only_saves_items_when_necessary(self):
         self.client.get('/')
@@ -49,6 +46,27 @@ class HomePageTest(TestCase):
 
         self.assertIn('itemey 1', response.content.decode())
         self.assertIn('itemey 2', response.content.decode())
+
+    def test_display_different_comment_depending_todo_list_quantity(self):
+        response = self.client.get('/')
+        self.assertIn('If a trequartista is doing nothing on an attack, then they have failed',
+                      response.content.decode())
+
+        Item.objects.create(text='item 1')
+        Item.objects.create(text='item 2')
+
+        response = self.client.get('/')
+        self.assertIn('A trequartista always check more things to do than losing its man marker',
+                      response.content.decode())
+
+        Item.objects.create(text='item 3')
+        Item.objects.create(text='item 4')
+        Item.objects.create(text='item 5')
+
+        response = self.client.get('/')
+        self.assertIn("There's no such thing as too much to do for a trequartista. "
+                      "They're the team's attack organizer after all",
+                      response.content.decode())
 
 
 class ItemModelTest(TestCase):
