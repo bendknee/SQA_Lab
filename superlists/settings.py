@@ -25,7 +25,7 @@ SECRET_KEY = '1stg4#(5lx-f3j@$pa+di7c^%*+vs^2tdkj_%m0ove)+)n3v6e'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['sqa-exercise.herokuapp.com']
+ALLOWED_HOSTS = ['localhost', 'sqa-exercise.herokuapp.com']
 
 
 # Application definition
@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'lists',
 ]
 
 MIDDLEWARE = [
