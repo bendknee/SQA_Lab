@@ -1,0 +1,25 @@
+stages:
+  - test
+
+UnitTest:
+  stage: test
+  script:
+  - apt-get update -qy
+  - apt-get install -y python-dev python-pip
+  - pip install -r requirements.txt
+  - python manage.py test lists
+
+FunctionalTest:
+  image: python:3.6-stretch
+  stage: test
+  before_script:
+  - apt -qq update
+  - DEBIAN_FRONTEND=noninteractive apt -qq -y install xvfb firefox-esr chromium chromedriver
+  - apt install -qq -y jq
+  - curl -s https://api.github.com/repos/mozilla/geckodriver/releases/latest | jq -r '.assets[].browser_download_url | select(contains("linux64"))' | xargs -n1 curl -sL | tar -xz -C /usr/local/bin
+  - chmod +x /usr/local/bin/geckodriver
+  - python -m venv /opt/testing
+  - /opt/testing/bin/pip install --quiet --upgrade pip setuptools
+  - /opt/testing/bin/pip install --quiet -r requirements.txt
+  script:
+  - xvfb-run /opt/testing/bin/python manage.py test functional_tests
