@@ -1,12 +1,12 @@
 import time
 
-from django.test import LiveServerTestCase
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium import webdriver
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.common.keys import Keys
 
 
-class HomePageTest(LiveServerTestCase):
+class HomePageTest(StaticLiveServerTestCase):
 
     def setUp(self):
         self.MAX_WAIT = 10
@@ -26,6 +26,29 @@ class HomePageTest(LiveServerTestCase):
             except (AssertionError, WebDriverException) as e:
                 if time.time() - start_time > self.MAX_WAIT:
                     raise e
+
+    def test_layout_and_styling(self):
+        # Benny goes to the home page
+        self.browser.get(self.live_server_url)
+        self.browser.set_window_size(1024, 768)
+
+        # He notices the input box is nicely centered
+        inputbox = self.browser.find_element_by_id('id_new_item')
+        self.assertAlmostEqual(
+            inputbox.location['x'] + inputbox.size['width'] / 2,
+            512,
+            delta=10
+        )
+        # He starts a new list and sees the table is nicely centered there too
+        inputbox.send_keys('testing')
+        inputbox.send_keys(Keys.ENTER)
+        self.wait_for_row_in_list_table('1: testing')
+        table = self.browser.find_element_by_id('id_list_table')
+        self.assertAlmostEqual(
+            table.location['x'] + table.size['width'] / 2,
+            512,
+            delta=10
+        )
 
     def test_can_access_homepage_view_with_fullname_innit(self):
         name = "Benny William Pardede"
