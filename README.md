@@ -76,4 +76,47 @@ For example:
 
 [...]
 ```
-    
+
+## Exercise 4 Story
+
+### Code Changes
+Exercise 4 is all about styling. The software doesn't increment in terms of features at all. But the FT has some new
+improvements to respond the requirements of html styling; with css just to make things simple. So we have done here is add
+one specific FT test to check whether our elements (inputbox, motivation comment, table) is aligned nicely in the middle.
+
+```diff
++   def test_layout_and_styling(self):
++       # Benny goes to the home page
++       self.browser.get(self.live_server_url)
++       self.browser.set_window_size(1024, 768)
+
++       # He notices the input box is nicely centered
++       inputbox = self.browser.find_element_by_id('id_new_item')
++       self.assertAlmostEqual(
++           inputbox.location['x'] + inputbox.size['width'] / 2,
++           512,
++           delta=10
++       )
+
++       # He also notices the motivational comment which is proportionally placed in the middle
++       comment = self.browser.find_element_by_id('motivation_comment')
++       self.assertAlmostEqual(comment.size['width'], inputbox.size['width'], delta=5)
+
++       # He starts a new list and sees the table is nicely centered there too
++       inputbox.send_keys('testing')
++       inputbox.send_keys(Keys.ENTER)
++       self.wait_for_row_in_list_table('1: testing')
++       table = self.browser.find_element_by_id('id_list_table')
++       self.assertAlmostEqual(
++           table.location['x'] + table.size['width'] / 2,
++           512,
++           delta=10
++       )
+
+    def test_can_access_homepage_view_with_fullname_innit(self):
+        name = "Benny William Pardede"
+        npm = "1606917550"
+```
+
+And so much more changes in `home.html`, though I think its not worth showing here since its just too much changes. Sorry!
+You can check the merge request which merges `exercise/4` branch to observe the changes clearly.
