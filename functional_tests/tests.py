@@ -39,6 +39,11 @@ class HomePageTest(StaticLiveServerTestCase):
             512,
             delta=10
         )
+
+        # He also notices the motivational comment which is proportionally placed in the middle
+        comment = self.browser.find_element_by_id('motivation_comment')
+        self.assertAlmostEqual(comment.size['width'], inputbox.size['width'], delta=5)
+
         # He starts a new list and sees the table is nicely centered there too
         inputbox.send_keys('testing')
         inputbox.send_keys(Keys.ENTER)
