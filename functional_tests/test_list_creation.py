@@ -1,59 +1,9 @@
-import time
-
-from django.contrib.staticfiles.testing import StaticLiveServerTestCase
-from selenium import webdriver
-from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.common.keys import Keys
 
+from functional_tests.base import FunctionalTest
 
-class HomePageTest(StaticLiveServerTestCase):
 
-    def setUp(self):
-        self.MAX_WAIT = 10
-        self.browser = webdriver.Firefox()
-
-    def tearDown(self):
-        self.browser.quit()
-
-    def wait_for_row_in_list_table(self, row_text):
-        start_time = time.time()
-        while True:
-            try:
-                table = self.browser.find_element_by_id('id_list_table')
-                rows = table.find_elements_by_tag_name('tr')
-                self.assertIn(row_text, [row.text for row in rows])
-                return
-            except (AssertionError, WebDriverException) as e:
-                if time.time() - start_time > self.MAX_WAIT:
-                    raise e
-
-    def test_layout_and_styling(self):
-        # Benny goes to the home page
-        self.browser.get(self.live_server_url)
-        self.browser.set_window_size(1024, 768)
-
-        # He notices the input box is nicely centered
-        inputbox = self.browser.find_element_by_id('id_new_item')
-        self.assertAlmostEqual(
-            inputbox.location['x'] + inputbox.size['width'] / 2,
-            512,
-            delta=10
-        )
-
-        # He also notices the motivational comment which is proportionally placed in the middle
-        comment = self.browser.find_element_by_id('motivation_comment')
-        self.assertAlmostEqual(comment.size['width'], inputbox.size['width'], delta=5)
-
-        # He starts a new list and sees the table is nicely centered there too
-        inputbox.send_keys('testing')
-        inputbox.send_keys(Keys.ENTER)
-        self.wait_for_row_in_list_table('1: testing')
-        table = self.browser.find_element_by_id('id_list_table')
-        self.assertAlmostEqual(
-            table.location['x'] + table.size['width'] / 2,
-            512,
-            delta=10
-        )
+class HomePageTest(FunctionalTest):
 
     def test_can_access_homepage_view_with_fullname_innit(self):
         name = "Benny William Pardede"
