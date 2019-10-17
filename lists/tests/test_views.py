@@ -1,4 +1,5 @@
 from django.test import TestCase
+from django.utils.html import escape
 
 from lists.models import Item
 
@@ -28,11 +29,11 @@ class HomePageTest(TestCase):
 
         response = self.client.get('/')
         html = response.content.decode('utf8')
-        self.assertTrue(html.startswith('<html>'))
+        self.assertTrue(html.strip().startswith('<html>'))
         self.assertIn(name, html)
         self.assertIn(npm, html)
         self.assertIn(role, html)
-        self.assertTrue(html.endswith('</html>'))
+        self.assertTrue(html.strip().endswith('</html>'))
 
     def test_only_saves_items_when_necessary(self):
         self.client.get('/')
@@ -71,3 +72,14 @@ class HomePageTest(TestCase):
         self.assertIn("There are no such thing as too much to do for a trequartista. "
                       "They are the attack organizer after all",
                       response.content.decode())
+
+    def test_validation_errors_are_sent_back_to_home_page_template(self):
+        response = self.client.post('/', data={'item_text': ''})
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'home.html')
+        expected_error = escape("You can't have an empty list item")
+        self.assertContains(response, expected_error)
+
+    def test_invalid_list_items_arent_saved(self):
+        self.client.post('/', data={'item_text': ''})
+        self.assertEqual(Item.objects.count(), 0)
