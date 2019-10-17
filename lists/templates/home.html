@@ -8,43 +8,48 @@
     <link href="/static/proper.css" rel="stylesheet">
   </head>
 
-    <body>
-      <div class="container">
+  <body>
+    <div class="container">
 
-        <div class="row">
-          <div class="col-md-6 col-md-offset-3 jumbotron">
-            <div class="text-center">
-              <h1>Your To-Do list</h1>
-              <form method="POST">
-              <input name="item_text" id="id_new_item"
-                     class="form-control input-lg"
-                     placeholder="Enter a to-do item" />
-              {% csrf_token %}
-              </form>
-              <h4 id="motivation_comment"><strong><i>{{ motivation_comment }}</i></strong></h4>
-            </div>
+      <div class="row">
+        <div class="col-md-6 col-md-offset-3 jumbotron">
+          <div class="text-center">
+            <h1>Your To-Do list</h1>
+            <form method="POST">
+            <input name="item_text" id="id_new_item"
+                   class="form-control input-lg"
+                   placeholder="Enter a to-do item" />
+            {% csrf_token %}
+            {% if error %}
+              <div class="form-group has-error">
+                <span class="help-block">{{ error }}</span>
+              </div>
+            {% endif %}
+            </form>
+            <h4 id="motivation_comment"><strong><i>{{ motivation_comment }}</i></strong></h4>
           </div>
         </div>
-
-        <div class="row">
-          <div class="col-md-6 col-md-offset-3">
-            <table id="id_list_table" class="table">
-              {% for item in items %}
-                  <tr><td>{{ forloop.counter }}: {{ item.text }}</td></tr>
-              {% endfor %}
-	  	</table>
-          </div>
-        </div>
-
-        <div class="row">
-            <div class="col-md-6 col-md-offset-3 alert alert-info">
-                <h4>The name's Benny.</h4>
-                <h2 id="name">Benny William Pardede</h2>
-                <p id="alias">But they usually call me the <strong>trequartista</strong></p>
-                <p id="npm">- 1606917550</p>
-            </div>
-        </div>
-
       </div>
-	</body>
+
+      <div class="row">
+        <div class="col-md-6 col-md-offset-3">
+          <table id="id_list_table" class="table">
+            {% for item in items %}
+                <tr><td>{{ forloop.counter }}: {{ item.text }}</td></tr>
+            {% endfor %}
+          </table>
+        </div>
+      </div>
+
+      <div class="row">
+          <div class="col-md-6 col-md-offset-3 alert alert-info">
+              <h4>The name's Benny.</h4>
+              <h2 id="name">Benny William Pardede</h2>
+              <p id="alias">But they usually call me the <strong>trequartista</strong></p>
+              <p id="npm">- 1606917550</p>
+          </div>
+      </div>
+
+    </div>
+  </body>
 </html>

@@ -1,4 +1,5 @@
 from django.test import TestCase
+from django.utils.html import escape
 
 from lists.models import Item
 
@@ -28,11 +29,11 @@ class HomePageTest(TestCase):
 
         response = self.client.get('/')
         html = response.content.decode('utf8')
-        self.assertTrue(html.startswith('<html>'))
+        self.assertTrue(html.strip().startswith('<html>'))
         self.assertIn(name, html)
         self.assertIn(npm, html)
         self.assertIn(role, html)
-        self.assertTrue(html.endswith('</html>'))
+        self.assertTrue(html.strip().endswith('</html>'))
 
     def test_only_saves_items_when_necessary(self):
         self.client.get('/')
@@ -72,22 +73,13 @@ class HomePageTest(TestCase):
                       "They are the attack organizer after all",
                       response.content.decode())
 
+    def test_validation_errors_are_sent_back_to_home_page_template(self):
+        response = self.client.post('/', data={'item_text': ''})
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'home.html')
+        expected_error = escape("You can't have an empty list item")
+        self.assertContains(response, expected_error)
 
-class ItemModelTest(TestCase):
-
-    def test_saving_and_retrieving_items(self):
-        first_item = Item()
-        first_item.text = 'The first (ever) list item'
-        first_item.save()
-
-        second_item = Item()
-        second_item.text = 'Item the second'
-        second_item.save()
-
-        saved_items = Item.objects.all()
-        self.assertEqual(saved_items.count(), 2)
-
-        first_saved_item = saved_items[0]
-        second_saved_item = saved_items[1]
-        self.assertEqual(first_saved_item.text, 'The first (ever) list item')
-        self.assertEqual(second_saved_item.text, 'Item the second')
+    def test_invalid_list_items_arent_saved(self):
+        self.client.post('/', data={'item_text': ''})
+        self.assertEqual(Item.objects.count(), 0)

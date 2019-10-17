@@ -120,3 +120,34 @@ one specific FT test to check whether our elements (inputbox, motivation comment
 
 And so much more changes in `home.html`, though I think its not worth showing here since its just too much changes. Sorry!
 You can check the merge request which merges `exercise/4` branch to observe the changes clearly.
+
+## Exercise 5 Story
+### Clean Code x TDD
+When taking the Software Project course on the first half of 2019, I was required to make a blog to write my thoughts on
+several topics of software engineering. And apparently one of those topics are about TDD. [Quoting myself](https://medium.com/ppl-d7-fasilkom-ui/test-drive-782524fec72d),
+in TDD, Refactor means “fixing your code quality that maybe has been abandoned due to only focusing on making the test pass, without making the test fail”.
+Building a software often requires a team, it’s not only you who determine tests, who implement functions.
+To enhance code understanding between developers, all of the members have to ensure good code quality in their deliverables.
+To improve code quality, developers often recognize code smells and fix it so it will be clean. And these code smell removals
+are heavily related to Clean Code.
+
+Although now after I looked back at my blog, I realized that what I wanted to push to the readers is to refactor ASAP.
+**No refactor, no deliver**. That's just in contrast to Mr. Percival who confessed that refactoring often took months 
+for him to realize that he really have to do refactoring in his work.
+And now I have to confess too that I agree with him. I had to eat my own words when working on a real industry setting as an intern.
+These refactor-immediately mindset has got into me as a some sort of paranoia. I'm aware the unittest passes but also
+itching for more optimization, more clean writings; where it's not really necessary. I realized that this Refactor phase in TDD
+is just trying to tell us that anyone should feel free to refactor whenever they're not in a working state; currently in Green phase.
+But also make sure your refactoring activity doesn't bring you back to Red!
+Because the only time a code state could go back to the Red phase is when you're adding new unittests.
+
+### Test Organization
+The point here on separating test classes on different files is the common sense that one source code file is just
+unnavigable if that file has too many lines/functions/classes bulked in together. Especially when there are so much classes
+that have no relation at all, eventually degrading the initial meaning of the file name. Test always grows in TDD, so
+cluttering test classes in one test file is just an unavoidable consequence. But to reduce damage from this consequence, one dev could
+do some test organization so that devs could navigate on file names instead of class names inside one possibly unrelated file.
+
+On my opinion though, organizing things is just a general intuitive solution to make things tidier.
+It's always nice to have a tidy arrangement of things. Tidy book shelf is nice to find books,
+tidy shoe racks are nice to find shoes, and Mr. Percival maybe thought it applies to tidy directories too.
