@@ -23,10 +23,10 @@ def home_page(request):
 
 
 def pick_comment(count):
-    if count >= 5:
-        return "There are no such thing as too much to do for a trequartista. " \
-                      "They are the attack organizer after all"
-    elif 5 > count > 0:
+    if count == 0:
+        return "If a trequartista is doing nothing on an attack, then they have failed"
+    if count < 5:
         return "A trequartista always check more things to do than losing its man marker"
     else:
-        return "If a trequartista is doing nothing on an attack, then they have failed"
+        return "There are no such thing as too much to do for a trequartista. " \
+                      "They are the attack organizer after all"

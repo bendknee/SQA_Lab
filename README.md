@@ -151,3 +151,268 @@ do some test organization so that devs could navigate on file names instead of c
 On my opinion though, organizing things is just a general intuitive solution to make things tidier.
 It's always nice to have a tidy arrangement of things. Tidy book shelf is nice to find books,
 tidy shoe racks are nice to find shoes, and Mr. Percival maybe thought it applies to tidy directories too.
+
+## Exercise 6 Story
+#### Mutant 6.1: Relational Operator Replacement
+```diff
+[...]
+
+def pick_comment(count):
+-   if count >= 5:
++   if count == 5:
+        return "There are no such thing as too much to do for a trequartista. " \
+                      "They are the attack organizer after all"
+    elif 5 > count > 0:
+        return "A trequartista always check more things to do than losing its man marker"
+    else:
+        return "If a trequartista is doing nothing on an attack, then they have failed"
+```
+#### Mutant 6.2: Relational Operator Replacement
+```diff
+def home_page(request):
+    items = Item.objects.all()
+    motivation_comment = pick_comment(Item.objects.count())
+    error = None
+
+-   if request.method == 'POST':
++   if request.method != 'POST':
+        item = Item.objects.create(text=request.POST['item_text'])
+        try:
+            item.full_clean()
+            item.save()
+            return redirect('/')
+        except ValidationError:
+            item.delete()
+            error = "You can't have an empty list item"
+
+    return render(request, 'home.html', {"error": error, 'items': items, 'motivation_comment': motivation_comment})
+
+[...]
+```
+
+These two mutants had different conclusions, given the test cases that we own right now.
+Mutant 6.1 survived through all test cases while **mutant 6.2 has been killed for just being an incompetent mutant**.
+Being an incompetent mutant means that a mutant infects a program just to trigger overt runtime errors/exceptions during execution.
+
+Mutation testing for Mutant 6.1 
+```text
+System check identified no issues (0 silenced).
+..................
+----------------------------------------------------------------------
+Ran 18 tests in 89.787s
+
+OK
+Destroying test database for alias 'default'...
+```
+
+Mutation testing for Mutant 6.2
+```text
+System check identified no issues (0 silenced).
+..FEEEEE.EFEFEFEEE
+----------------------------------------------------------------------
+Ran 18 tests in 54.819s
+
+FAILED (failures=4, errors=11)
+Destroying test database for alias 'default'...
+```
+
+To kill mutant 6.1, I modified an existing test case (method) that tests the displayed comment when there are greater equal than
+five to-do list items on the table. The method in subject is `test_display_comment_if_todo_items_greater_equal_than_five`
+inside test_views.py
+
+```diff
+def test_display_comment_if_todo_items_greater_equal_than_five(self):
+    Item.objects.create(text='item 1')
+    Item.objects.create(text='item 2')
+    Item.objects.create(text='item 3')
+    Item.objects.create(text='item 4')
+    Item.objects.create(text='item 5')
++   Item.objects.create(text='item 6')
+
+    response = self.client.get('/')
+    self.assertIn("There are no such thing as too much to do for a trequartista. "
+                  "They are the attack organizer after all",
+                  response.content.decode())
+```
+
+Now mutant 6.1 is dead, thanks to that test case modification
+```text
+System check identified no issues (0 silenced).
+....F.............
+======================================================================
+FAIL: test_display_comment_if_todo_items_greater_equal_than_five (lists.tests.test_views.HomePageTest)
+[...]
+
+----------------------------------------------------------------------
+Ran 18 tests in 120.640s
+
+FAILED (failures=1)
+Destroying test database for alias 'default'...
+```
+
+The test method here is modified without changing the correctness, but this time the mutant won't survive.
+Before, I was naive assuming that a test case with `equal than` premise should be enough to test the correctness
+of a `greater equal than` premise.
+
+#### Mutation Testing Tool
+I chose Cosmic-Ray by Austin Bingham to help me mutating views.py with all the possible mutation a Python code
+could experience. And it turns out that my current test cases missed out some mutations.
+
+```text
+[...]
+7dcb1731191b4aa0922bfb1c39303523 lists/views.py core/NumberReplacer 5
+worker outcome: normal, test outcome: killed
+total jobs: 33
+complete: 33 (100.00%)
+survival rate: 21.21%
+```
+
+I've got about 7 mutations that survived my test cases, and several of those survivors mutates my program in a similar fashion.
+_I didn't show all the mutants here_.
+
+```diff
+--- mutation diff ---
+--- alists/views.py
++++ blists/views.py
+
+def pick_comment(count):
+-    if count >= 5:
++    if count == 5:
++    if count >= 4:
+        return "There are no such thing as too much to do for a trequartista. " \
+                      "They are the attack organizer after all"
+-    elif 5 > count > 0:
++    elif 6 > count > 0:
++    elif 4 > count > 0:
++    elif 5 > count > 1:
+        return "A trequartista always check more things to do than losing its man marker"
+    else:
+        return "If a trequartista is doing nothing on an attack, then they have failed"
+```
+
+Each relational operator is being mutated to all its counterparts, and I already had so many lying in my source code.
+But rather than tweaking the source code we must face the fact that some major changes should be done in our tests,
+and the focus is on the `display comment` feature.
+
+What I did is combining two test cases that test two specifications of the feature, testing display comment when there are
+to-do list items but less than five and when there are greater than equal five to-do list items. In short I combined the
+essence of test case `test_display_comment_if_todo_items_less_than_five` and `test_display_comment_if_todo_items_greater_equal_than_five`
+to become just one generalized test case `test_displayed_comment_for_each_time_new_todo_item_is_added`. It checks the comment
+**every time** a to-do list item is added. It stops at 6 items for obvious reasons.
+
+```python
+def test_displayed_comment_for_each_time_new_todo_item_is_added(self):
+    Item.objects.create(text='item 1')
+    response = self.client.get('/')
+    self.assertIn('A trequartista always check more things to do than losing its man marker',
+                  response.content.decode())
+
+    Item.objects.create(text='item 2')
+    response = self.client.get('/')
+    self.assertIn('A trequartista always check more things to do than losing its man marker',
+                  response.content.decode())
+
+    Item.objects.create(text='item 3')
+    response = self.client.get('/')
+    self.assertIn('A trequartista always check more things to do than losing its man marker',
+                  response.content.decode())
+
+    Item.objects.create(text='item 4')
+    response = self.client.get('/')
+    self.assertIn('A trequartista always check more things to do than losing its man marker',
+                  response.content.decode())
+
+    Item.objects.create(text='item 5')
+    response = self.client.get('/')
+    self.assertIn("There are no such thing as too much to do for a trequartista. "
+                  "They are the attack organizer after all",
+                  response.content.decode())
+
+    Item.objects.create(text='item 6')
+    response = self.client.get('/')
+    self.assertIn("There are no such thing as too much to do for a trequartista. "
+                  "They are the attack organizer after all",
+                  response.content.decode())
+```
+
+When I run cosmic-ray again, it tells me that my new test suites are killing more mutants
+
+```text
+[...]
+total jobs: 33
+complete: 33 (100.00%)
+survival rate: 18.18%
+```
+
+But improving from 21 to 18 percent means that I succeeded killing only one survivor from previous round, that's not relieving news.
+So I checked what kind of mutants that went through.
+
+```diff
+--- mutation diff ---
+--- alists/views.py
++++ blists/views.py
+
+def pick_comment(count):
+    if count >= 5:
+        return "There are no such thing as too much to do for a trequartista. " \
+                      "They are the attack organizer after all"
+-    elif 5 > count > 0:
++    elif 5 != count > 0:
++    elif 5 > count != 0:
++    elif 5 >= count > 0:
++    elif 5 is not count > 0:
++    elif 6 > count > 0:
+        return "A trequartista always check more things to do than losing its man marker"
+    else:
+        return "If a trequartista is doing nothing on an attack, then they have failed"
+```
+
+It seems that mutations like `5 >= count > 0` and `6 > count > 0` survives because
+the program execution won't simply get to that point when `count` is >= 5. Moreover, the if-clause has too many operators that
+the mutation tool starts making odd, trivial mutations like `elif 5 != count > 0`, `elif 5 > count != 0`, or `elif 5 is not count > 0`
+
+I'm starting to figure what's going on. I have to reduce those symbols somehow. And I thought it can be done by reconstructing
+the if-clause. I remembered a rule-of-thumb that the most tight (edge) case should always be on top of a if-clause.
+We have three conditions of `count`: 0, 1-4, and 5-∞. The most tight range here is 0, then 1-4, and then >= 5.
+So then I rearranged the if-clause to this
+
+```python
+def pick_comment(count):
+    if count == 0:
+        return "If a trequartista is doing nothing on an attack, then they have failed"
+    if count < 5:
+        return "A trequartista always check more things to do than losing its man marker"
+    else:
+        return "There are no such thing as too much to do for a trequartista. " \
+                      "They are the attack organizer after all"    
+```
+You can witness that there are much less relational symbols already in this function. And to prove my hypothesis, I ran cosmic-ray
+once again and obtain this result
+
+```text
+[...]
+total jobs: 24
+complete: 24 (100.00%)
+survival rate: 8.33%
+```
+
+I guess I'm just bad at designing program branches.
+
+The total mutations reduced, the survival rate reduced even more, dropping from 18 to just 8.
+The only surviving mutant is an arguably bizarre one though.
+I don't think I can do anything to prevent this, how else would you compare strings in Python?
+
+```diff
+--- mutation diff ---
+--- alists/views.py
++++ blists/views.py
+@@ -9,7 +9,7 @@
+     motivation_comment = pick_comment(Item.objects.count())
+     error = None
+ 
+-    if request.method == 'POST':
++    if request.method >= 'POST':
+         item = Item.objects.create(text=request.POST['item_text'])
+         try:
+             item.full_clean()
+```

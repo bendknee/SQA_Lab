@@ -53,21 +53,40 @@ class HomePageTest(TestCase):
         self.assertIn('If a trequartista is doing nothing on an attack, then they have failed',
                       response.content.decode())
 
-    def test_display_comment_if_todo_items_less_than_five(self):
+    def test_displayed_comment_for_each_time_new_todo_item_is_added(self):
         Item.objects.create(text='item 1')
-        Item.objects.create(text='item 2')
-
         response = self.client.get('/')
         self.assertIn('A trequartista always check more things to do than losing its man marker',
                       response.content.decode())
 
-    def test_display_comment_if_todo_items_greater_equal_than_five(self):
-        Item.objects.create(text='item 1')
         Item.objects.create(text='item 2')
-        Item.objects.create(text='item 3')
-        Item.objects.create(text='item 4')
-        Item.objects.create(text='item 5')
+        response = self.client.get('/')
+        self.assertIn('A trequartista always check more things to do than losing its man marker',
+                      response.content.decode())
 
+        Item.objects.create(text='item 3')
+        response = self.client.get('/')
+        self.assertIn('A trequartista always check more things to do than losing its man marker',
+                      response.content.decode())
+
+        Item.objects.create(text='item 4')
+        response = self.client.get('/')
+        self.assertIn('A trequartista always check more things to do than losing its man marker',
+                      response.content.decode())
+
+        Item.objects.create(text='item 5')
+        response = self.client.get('/')
+        self.assertIn("There are no such thing as too much to do for a trequartista. "
+                      "They are the attack organizer after all",
+                      response.content.decode())
+
+        Item.objects.create(text='item 6')
+        response = self.client.get('/')
+        self.assertIn("There are no such thing as too much to do for a trequartista. "
+                      "They are the attack organizer after all",
+                      response.content.decode())
+
+        Item.objects.create(text='item 7')
         response = self.client.get('/')
         self.assertIn("There are no such thing as too much to do for a trequartista. "
                       "They are the attack organizer after all",
