@@ -416,3 +416,25 @@ I don't think I can do anything to prevent this, how else would you compare stri
          try:
              item.full_clean()
 ```
+
+## Exercise 7 Story
+### Spiking
+Test Driven Development has a 'quirk' regarding its rigorous discipline. Being not allowed to code anything before
+writing the test becomes a problem when a developer needs to use some external software/codes for their own.
+One would have no idea what to test from the external software when they even haven't figured out how to use it to their requirements.
+Some trickery to deceive the Testing Goat must be done to allow devs do some 'exploration' and 'experimentation',
+and that trick is called 'Spiking'.
+
+It's obvious that a dev should do spiking outside the production code/branch main lane. On a new branch, you could do almost
+anything to do some adventuring on your new dependencies. While it seems that you're breaking stuff, it's a good trade off
+when you finally gain the **idea** of implementing your new stuff but keep in mind that idea is what's left after the spike is over.
+All of your written codes in this spiking branch will be thrown away when de-spiking. Though keep in mind that you may also
+gain nothing from a spike (not feasible, irrelevant, etc.).
+
+### De-spiking
+De-spiking, by its name, is an action of reversing the spike. You already got the idea of how to implement your requirements
+using your brand new stacks, library, or third-party software. But as I mentioned, you only retrieve **only** the idea, not the code.
+Those experimentation codes should be thrown away when de-spiking, except one; the test codes. It's a rule of thumb
+to create functional/unit tests before a dev went de-spiking, before they forgot what is 'correct' by the spike standards.
+This time though, when implementing your idea, you should return back to the ways of Testing Goat, because you're back to
+writing in the production lane/code. 
