@@ -14,7 +14,7 @@ def send_login_email(request):
     url = request.build_absolute_uri("/accounts/login?uid={}".format(uid))
     send_mail(
         'Your login link for To-Do Lists',
-        f'Use this link to log in:\n\n{url}',
+        'Use this link to log in:\n\n{}'.format(url),
         'noreply@todolists',
         [email],
     )
