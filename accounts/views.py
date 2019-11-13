@@ -13,7 +13,7 @@ def send_login_email(request):
     uid = str(uuid.uuid4())
     Token.objects.create(email=email, uid=uid)
 
-    url = request.build_absolute_uri(f'/accounts/login?uid={uid}')
+    url = request.build_absolute_uri("/accounts/login?uid={}".format(uid))
     send_mail(
         'Your login link for To-Do Lists',
         f'Use this link to log in:\n\n{url}',
