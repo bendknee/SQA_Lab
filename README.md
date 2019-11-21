@@ -489,3 +489,44 @@ from unittest.mock import patch
 def test_mocking_mock_object_from_param(self, mock_arg_param):
     mock_arg_param.foo.return_value = "spesific_return_value"
 ```
+
+### Why mocking = tightly coupled implementations
+Remember why are we doing mock in the first place, because we have an external dependency that we don't want to use in our tests.
+External dependency always relates to third-party API, which usually already had a hefty chunk of ready-to-use functions/interfaces.
+It is important to remember that these third-party APIs may have several methods to accomplish a certain goal. For example,
+given in the book, when we want to add Django messages to our response, you could do so by two different methods. Either 
+you call `messages.add_message(SUCCESS, {msg})` or just `messages.success({msg})`. These two implementations produces the same
+output, but when you really have to mock, you can only patch **one of them**, and now you are binded to a specific implementation.
+Your real implementation now is somehow restricted, since your mock object is currently copying a specific method, its name, its
+arguments, and perhaps its return values. You are now helpless but to comply to that specific way of implementation.
+For example look at these two test functions:
+```python
+def test_sends_mail_to_address_from_post(self):
+    self.send_mail_called = False
+
+    def fake_send_mail(subject, body, from_email, to_list):
+        self.send_mail_called = True
+        self.subject = subject
+        self.body = body
+        self.from_email = from_email
+        self.to_list = to_list
+
+    accounts.views.send_mail = fake_send_mail
+
+    self.client.post('/accounts/send_login_email', data={
+        'email': 'benny.william@example.com'
+    })
+
+    [...]
+```
+`send_mail` was originally a built-in Django function that has obvious external side effect; sending a real email. Here
+we assumed that `send_mail` function accepts exactly 4 arguments, `subject`, `body`, `from_email`, `to_list`, in that particular
+order. Then after you read further the docs, you realize that there were optional key word arguments that `send_mail` accepts.
+To use that kwargs, you also have to update your mock function since it absolutely didn't accepts any more arguments. Or else,
+the test will absolutely fail. You are now obliged to comply to your own mock object, rather that your mock object complying
+to your desired implementation.
+
+This situation is what we call "tightly coupled with the implementation". Keep in mind of a rule of thumb that it's better to
+test behaviour rather the implementation details. We test by giving a set of input and checking a set of output with a 
+set of expectations. While mocks are powerful to neutralize undesired external side-effects, they often end up making you write
+tests that checks 'how to implement' rather than 'what output to expect'.
