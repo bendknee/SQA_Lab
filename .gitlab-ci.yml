@@ -2,12 +2,15 @@ stages:
   - test
 
 UnitTest:
+  image: python:3.6
   stage: test
+  before_script:
+    - apt-get update -qqy
+    - apt-get install -qqy python3-pip
+    - pip3 install -r requirements.txt
   script:
-  - apt-get update -qy
-  - apt-get install -y python-dev python-pip
-  - pip install -r requirements.txt
-  - python manage.py test accounts lists
+    - python manage.py test lists
+    - python manage.py test accounts
 
 FunctionalTest:
   image: python:3.6-stretch
