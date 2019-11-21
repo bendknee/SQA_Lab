@@ -438,3 +438,54 @@ Those experimentation codes should be thrown away when de-spiking, except one; t
 to create functional/unit tests before a dev went de-spiking, before they forgot what is 'correct' by the spike standards.
 This time though, when implementing your idea, you should return back to the ways of Testing Goat, because you're back to
 writing in the production lane/code. 
+
+## Exercise 8 Story
+### Manual mocking vs. Mock libary
+Doing mocking job a.k.a Monkeypathing requires you to actually type in every object, function, attribute, that you need
+to replace the real thing that you don't desire to work during runtime. This requires you to copy all necessary information
+when creating the mock object, parameters in a function, attributes in a class, functions in a class, parameters in a function
+in a class, and so much more. Your code length would be probably exploded by the time you realized that you already made so much
+mock object, presumably for just one-off usage. Thanks to Python dynamic nature, you could easily replace a class, function,
+variable, within the scope of a python file, just by an assignment. ex: `accounts.views.send_email = my_mock_send_email`.
+
+To ease your mind, every mainstream programming languages has a mocking tool library available just for you. It is meant
+to simpifly all things about mocking. Using a library, you don't need to write any mock object/function anymore, as this
+library already does its magic. In python, the built-in mocking tool library is called Mock by Michael Foord. It is a
+really dynamic object in my opinion as it lets you use one `Mock()` object to produce function or variable, just by a
+random call of that object. For example:
+```python
+from unittest.mock import Mock
+m = Mock()
+m.any_attribute
+# <Mock name='mock.any_attribute' id='140716305179152'>
+type(m.any_attribute)
+# <class 'unittest.mock.Mock'>
+m.any_method()
+# <Mock name='mock.any_method()' id='140716331211856'>
+m.bar.return_value = 1
+m.bar(42, var='thing')
+# 1
+m.bar.call_args
+# call(42, var='thing')
+```
+You really just need one `Mock()` object to get all things done. You could spawn new mock variable by `m.{your_var_name}`.
+You could spawn new mock function by `m.{your_fun_name}()`. You could fixate a function's return value by
+`m.{your_fun_name}.return value = {any_return_value}`. And then when you call that function it will always return that same value.
+Mock also remembers every function call, and what arguments were used in that call by `m.{your_fun_name}.call_args`.
+Obviously keep in mind you could replace `m` with other namespace of your desire.
+
+So you could already conclude that this awesome library had got you covered for all your mocking needs. What about the
+monkeypatching that we did manually before? In Mock library, we do every patching with a spesific decorator called `patch`.
+It works exactly like you did in manual monkeypatching, assigning your undesired function with a new mock object.
+But this time, you don't define a mock object at all, not even doing `m = Mock()`. The only thing to do is set the `patch` decorator
+above a function, whenever you want the object to be replaced at runtime. And then, put an extra argument in your function
+definition. That argument becomes a `Mock()` object thanks to the decorator, and you can immediately do the things mentioned
+above like every `Mock()` object. The decorator has a required parameter, which is a string that contains
+the relative-python-dot-path to your function/class/variable. For example:
+```python
+from unittest.mock import patch
+
+@patch('accounts.views.send_mail')
+def test_mocking_mock_object_from_param(self, mock_arg_param):
+    mock_arg_param.foo.return_value = "spesific_return_value"
+```
