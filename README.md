@@ -530,3 +530,93 @@ This situation is what we call "tightly coupled with the implementation". Keep i
 test behaviour rather the implementation details. We test by giving a set of input and checking a set of output with a 
 set of expectations. While mocks are powerful to neutralize undesired external side-effects, they often end up making you write
 tests that checks 'how to implement' rather than 'what output to expect'.
+
+## Exercise 9 Story
+### 18.3 FT vs. 20.1 FT
+In chapter 18, we added a new feature to our To-Do List website which enable users to authenticate themselves. Back then, when writing our FT
+for testing the authentication process, we wrote a test which simulates the whole process of users logging in/out to/from the website.
+Percival named it the 'login dance', where a FT comprises typing an email to a form, take one email from Django's outbox queue
+(mail.outbox) just to click a login url, checking the navbar to make sure user is logged in, and finally logging out again.
+
+In chapter 20, we found a way to bypass the whole authentication process by utilizing a backdoor in Django's Session manager.
+Through this backdoor we can inject a legitimate user to the session database. Then that database will return a Session object which
+holds a session key that we can inject to the Selenium browser as a new cookie. That way, the Selenium browser will store a cookie
+that helps Django identify an authenticated session, and eventually an authenticated user.
+
+Furthermore, we wrote two helper functions which is analogous to `wait_for` helper function we had created many exercises ago.
+The functions `wait_to_be_logged_in` and `wait_to_be_logged_out` basically told the browser to wait because we're trying to
+look for the indicators of an authenticated session or unauthenticated session: the texts on the navbar.
+We also made this functions also for the sake of de-duplication. But these two is not what we're covering when discussing
+about bypassing authentication process.
+
+**So why our new FT code works better?** In further development, we can assume that someday we want to build new features that extends
+from this authentication use case. And as usual, when we need to develop a new 'feature', we must write the FT first.
+But because our new feature needs a authenticated user as a precondition, we must write out the whole login dance first
+before writing the actual test case. Duplication issue will be coming quick before we knew it, and this is where the authentication
+bypass method `create_pre_authenticated_session` steps up as a solution. It saves runtime and saves code lines aswell.
+Test data that populates the database to fulfill precondition is called **test fixture**. What happens in function
+`create_pre_authenticated_session` is basically injecting one test fixture to the session database and to the browser cookie.
+
+But keep in mind that there's some degree of limitations in this shortcut. Percival mentioned that this shortcut works because
+we're using the `LiveServerTestCase` library, so both User and Session entities end up in the same database as the view server.
+Percival warned this as a heads-up for us to not overdoing de-duplication in FTs. Because FTs may catch unpredictable
+interactions between different parts (features) of one's application. We have to make sure shortcuts or cheats doesn't 
+conflict with the real use case in our 'world'. But since this shortcut is simulating what is really happening in our browser,
+storing sessions in cookies, this shortcut becomes justifiable.
+
+### Does 21.1 error occurs?
+FTs execution in the remote server simply won't work because Selenium/GeckoDriver is not installed there. Rather than
+getting just 1 assertion error and 1 runtime error, I got 7 import errors.
+```text
+Creating test database for alias 'default'...
+System check identified no issues (0 silenced).
+EEEEEEE
+======================================================================
+ERROR: test_cannot_add_empty_list_items (functional_tests.test_input_validation.ItemValidationTest)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.7/site-packages/selenium/webdriver/common/service.py", line 76, in start
+    stdin=PIPE)
+  File "/usr/local/lib/python3.7/subprocess.py", line 775, in __init__
+    restore_signals, start_new_session)
+  File "/usr/local/lib/python3.7/subprocess.py", line 1522, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: 'geckodriver': 'geckodriver'
+
+[...]
+
+----------------------------------------------------------------------
+Ran 7 tests in 3.524s
+
+FAILED (errors=7)
+Destroying test database for alias 'default'
+```
+
+### Does 21.2 error occurs?
+(Note: I have done writing the LOGGING setting before)
+
+Yes. Because we haven't set the email password in the remote server environment yet.
+```text
+2019-11-28T06:59:47.052511+00:00 app[web.1]: Internal Server Error: /accounts/send_login_email
+2019-11-28T06:59:47.052523+00:00 app[web.1]: Traceback (most recent call last):
+2019-11-28T06:59:47.052526+00:00 app[web.1]:   File "/usr/local/lib/python3.7/site-packages/django/core/handlers/exception.py", line 41, in inner
+2019-11-28T06:59:47.052528+00:00 app[web.1]:     response = get_response(request)
+2019-11-28T06:59:47.052529+00:00 app[web.1]:   File "/usr/local/lib/python3.7/site-packages/django/core/handlers/base.py", line 187, in _get_response
+2019-11-28T06:59:47.052530+00:00 app[web.1]:     response = self.process_exception_by_middleware(e, request)
+2019-11-28T06:59:47.052532+00:00 app[web.1]:   File "/usr/local/lib/python3.7/site-packages/django/core/handlers/base.py", line 185, in _get_response
+2019-11-28T06:59:47.052534+00:00 app[web.1]:     response = wrapped_callback(request, *callback_args, **callback_kwargs)
+2019-11-28T06:59:47.052535+00:00 app[web.1]:   File "/code/accounts/views.py", line 20, in send_login_email
+2019-11-28T06:59:47.052538+00:00 app[web.1]:     [email]
+2019-11-28T06:59:47.052539+00:00 app[web.1]:   File "/usr/local/lib/python3.7/site-packages/django/core/mail/__init__.py", line 62, in send_mail
+2019-11-28T06:59:47.052542+00:00 app[web.1]:     return mail.send()
+2019-11-28T06:59:47.052544+00:00 app[web.1]:   File "/usr/local/lib/python3.7/site-packages/django/core/mail/message.py", line 348, in send
+2019-11-28T06:59:47.052545+00:00 app[web.1]:     return self.get_connection(fail_silently).send_messages([self])
+2019-11-28T06:59:47.052546+00:00 app[web.1]:   File "/usr/local/lib/python3.7/site-packages/django/core/mail/backends/smtp.py", line 111, in send_messages
+2019-11-28T06:59:47.052548+00:00 app[web.1]:     sent = self._send(message)
+2019-11-28T06:59:47.052549+00:00 app[web.1]:   File "/usr/local/lib/python3.7/site-packages/django/core/mail/backends/smtp.py", line 127, in _send
+2019-11-28T06:59:47.052550+00:00 app[web.1]:     self.connection.sendmail(from_email, recipients, message.as_bytes(linesep='\r\n'))
+2019-11-28T06:59:47.052551+00:00 app[web.1]:   File "/usr/local/lib/python3.7/smtplib.py", line 867, in sendmail
+2019-11-28T06:59:47.052553+00:00 app[web.1]:     raise SMTPSenderRefused(code, resp, from_addr)
+2019-11-28T06:59:47.052555+00:00 app[web.1]: smtplib.SMTPSenderRefused: (530, b'5.5.1 Authentication Required. Learn more at\n5.5.1  https://support.google.com/mail/?p=WantAuthError z9sm22309607wrv.35 - gsmtp', 'noreply@todododo')
+2019-11-28T06:59:47.138780+00:00 app[web.1]: "POST /accounts/send_login_email HTTP/1.1" 500 89046
+```
