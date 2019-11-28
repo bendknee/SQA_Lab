@@ -595,7 +595,7 @@ Destroying test database for alias 'default'
 ### Does 21.2 error occurs?
 (Note: I have done writing the LOGGING setting before)
 
-Yes. Because we haven't set the email password in the remote server envinronment yet.
+Yes. Because we haven't set the email password in the remote server environment yet.
 ```text
 2019-11-28T06:59:47.052511+00:00 app[web.1]: Internal Server Error: /accounts/send_login_email
 2019-11-28T06:59:47.052523+00:00 app[web.1]: Traceback (most recent call last):
