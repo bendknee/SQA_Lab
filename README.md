@@ -565,7 +565,7 @@ conflict with the real use case in our 'world'. But since this shortcut is simul
 storing sessions in cookies, this shortcut becomes justifiable.
 
 ### Does 21.1 error occurs?
-FTs execution in the remote server simply won't work because there's no Selenium/GeckoDriver installed there. Rather than
+FTs execution in the remote server simply won't work because Selenium/GeckoDriver is not installed there. Rather than
 getting just 1 assertion error and 1 runtime error, I got 7 import errors.
 ```text
 Creating test database for alias 'default'...
