@@ -530,3 +530,36 @@ This situation is what we call "tightly coupled with the implementation". Keep i
 test behaviour rather the implementation details. We test by giving a set of input and checking a set of output with a 
 set of expectations. While mocks are powerful to neutralize undesired external side-effects, they often end up making you write
 tests that checks 'how to implement' rather than 'what output to expect'.
+
+## Exercise 9 Story
+### 18.3 FT vs. 20.1 FT
+In chapter 18, we added a new feature to our To-Do List website which enable users to authenticate themselves. Back then, when writing our FT
+for testing the authentication process, we wrote a test which simulates the whole process of users logging in/out to/from the website.
+Percival named it the 'login dance', where a FT comprises typing an email to a form, take one email from Django's outbox queue
+(mail.outbox) just to click a login url, checking the navbar to make sure user is logged in, and finally logging out again.
+
+In chapter 20, we found a way to bypass the whole authentication process by utilizing a backdoor in Django's Session manager.
+Through this backdoor we can inject a legitimate user to the session database. Then that database will return a Session object which
+holds a session key that we can inject to the Selenium browser as a new cookie. That way, the Selenium browser will store a cookie
+that helps Django identify an authenticated session, and eventually an authenticated user.
+
+Furthermore, we wrote two helper functions which is analogous to `wait_for` helper function we had created many exercises ago.
+The functions `wait_to_be_logged_in` and `wait_to_be_logged_out` basically told the browser to wait because we're trying to
+look for the indicators of an authenticated session or unauthenticated session: the texts on the navbar.
+We also made this functions also for the sake of de-duplication. But these two is not what we're covering when discussing
+about bypassing authentication process.
+
+**So why our new FT code works better?** In further development, we can assume that someday we want to build new features that extends
+from this authentication use case. And as usual, when we need to develop a new 'feature', we must write the FT first.
+But because our new feature needs a authenticated user as a precondition, we must write out the whole login dance first
+before writing the actual test case. Duplication issue will be coming quick before we knew it, and this is where the authentication
+bypass method `create_pre_authenticated_session` steps up as a solution. It saves runtime and saves code lines aswell.
+Test data that populates the database to fulfill precondition is called **test fixture**. What happens in function
+`create_pre_authenticated_session` is basically injecting one test fixture to the session database and to the browser cookie.
+
+But keep in mind that there's some degree of limitations in this shortcut. Percival mentioned that this shortcut works because
+we're using the `LiveServerTestCase` library, so both User and Session entities end up in the same database as the view server.
+Percival warned this as a heads-up for us to not overdoing de-duplication in FTs. Because FTs may catch unpredictable
+interactions between different parts (features) of one's application. We have to make sure shortcuts or cheats doesn't 
+conflict with the real use case in our 'world'. But since this shortcut is simulating what is really happening in our browser,
+storing sessions in cookies, this shortcut becomes justifiable.
