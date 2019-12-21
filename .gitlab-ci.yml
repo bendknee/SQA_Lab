@@ -9,8 +9,9 @@ UnitTest:
     - apt-get install -qqy python3-pip
     - pip3 install -r requirements.txt
   script:
-    - python manage.py test lists
-    - python manage.py test accounts
+    - coverage run --source=lists,accounts manage.py test lists accounts
+  after_script:
+    - coverage report -m
 
 FunctionalTest:
   image: python:3.6-stretch
