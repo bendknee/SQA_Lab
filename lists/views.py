@@ -5,9 +5,14 @@ from lists.models import Item
 
 
 def home_page(request):
-    items = Item.objects.all()
-    motivation_comment = pick_comment(Item.objects.count())
-    error = None
+    home_context = {
+        'name': "Benny William Pardede",
+        'npm': "1606917550",
+        'role': "Trequartista",
+        'items': Item.objects.all(),
+        'motivation_comment': pick_comment(Item.objects.count()),
+        'error': None
+    }
 
     if request.method == 'POST':
         item = Item.objects.create(text=request.POST['item_text'])
@@ -17,9 +22,9 @@ def home_page(request):
             return redirect('/')
         except ValidationError:
             item.delete()
-            error = "You can't have an empty list item"
+            home_context['error'] = "You can't have an empty list item"
 
-    return render(request, 'home.html', {"error": error, 'items': items, 'motivation_comment': motivation_comment})
+    return render(request, 'home.html', home_context)
 
 
 def pick_comment(count):

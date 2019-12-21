@@ -9,6 +9,11 @@
   </head>
 
   <body>
+    <header class="dropdown-header">
+        <div class="container">
+            <span class="text-center">{{ name }}</span>
+        </div>
+    </header>
     <div class="container">
 
       <nav class="navbar navbar-default" role="navigation">
@@ -77,12 +82,17 @@
       <div class="row">
           <div class="col-md-6 col-md-offset-3 alert alert-info">
               <h4>The name's Benny.</h4>
-              <h2 id="name">Benny William Pardede</h2>
-              <p id="alias">But they usually call me the <strong>trequartista</strong></p>
-              <p id="npm">- 1606917550</p>
+              <h2 id="name">{{ name }}</h2>
+              <p id="alias">But they usually call me the <strong>{{ role }}</strong></p>
+              <p id="npm">- {{ npm }}</p>
           </div>
       </div>
 
     </div>
+    <footer class="modal-footer">
+        <div class="container">
+            <span class="text-muted">{{ name }} &copy;</span>
+        </div>
+    </footer>
   </body>
 </html>
