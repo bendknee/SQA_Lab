@@ -8,7 +8,7 @@ class HomePageTest(FunctionalTest):
     def test_can_access_homepage_view_with_fullname_innit(self):
         name = "Benny William Pardede"
         npm = "1606917550"
-        role = "trequartista"
+        role = "Trequartista"
 
         # Benny needs to show make an introductory homepage of himself
         # Benny had filled the landing page with internal gags within himself
@@ -28,6 +28,18 @@ class HomePageTest(FunctionalTest):
 
         # His Student Id
         self.assertIn(npm, self.browser.find_element_by_id('npm').text)
+
+    def test_homepage_header_and_footer_contains_author_name(self):
+        name = "Benny William Pardede"
+
+        # Benny opens the to-do list page
+        self.browser.get(self.live_server_url)
+
+        # He notices that the header of the page holds the website author, him!
+        self.assertIn(name, self.browser.find_element_by_tag_name('header').text)
+
+        # There's another in the footer aswell
+        self.assertIn(name, self.browser.find_element_by_tag_name('footer').text)
 
     def test_homepage_can_start_a_todo_list_and_retrieve_it_later(self):
         # Benny has heard about a cool new online to-do app. He opens it to
