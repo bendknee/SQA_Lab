@@ -35,7 +35,7 @@ class FunctionalTest(StaticLiveServerTestCase):
     def wait_for_row_in_list_table(self, row_text):
         table = self.browser.find_element_by_id('id_list_table')
         rows = table.find_elements_by_tag_name('tr')
-        self.assertIn(row_text, [row.text for row in rows])
+        self.assertIn(row_text, "\n".join([row.text for row in rows]))
 
     @wait
     def wait_to_be_logged_in(self, email):

@@ -124,3 +124,16 @@ class HomePageTest(FunctionalTest):
         self.assertEqual(comment.text,
                          "There are no such thing as too much to do for a trequartista. "
                          "They are the attack organizer after all")
+
+    def test_todo_list_has_timestamp(self):
+
+        # Benny heard about a new update on To-Do list application
+        self.browser.get(self.live_server_url)
+
+        # The list is still empty, he needs to enter one to see the update
+        inputbox = self.browser.find_element_by_id('id_new_item')
+        inputbox.send_keys('Patience is virtue')
+        inputbox.send_keys(Keys.ENTER)
+
+        # Now every to-do list item will have an indicator on when that item was created
+        self.wait_for_row_in_list_table('Just now')
