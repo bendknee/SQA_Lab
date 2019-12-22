@@ -1,4 +1,7 @@
+from datetime import timedelta
+
 from django.test import TestCase
+from django.utils import timezone
 from django.utils.html import escape
 
 from lists.models import Item
@@ -102,3 +105,32 @@ class HomePageTest(TestCase):
     def test_invalid_list_items_arent_saved(self):
         self.client.post('/', data={'item_text': ''})
         self.assertEqual(Item.objects.count(), 0)
+
+    def test_different_timestamps_for_different_periods(self):
+        Item.objects.create(text='item 1', creation_time=timezone.now() - timedelta(days=32))
+        response = self.client.get('/')
+        self.assertIn('1 month(s) ago', response.content.decode())
+
+        Item.objects.create(text='item 2', creation_time=timezone.now() - timedelta(days=25))
+        response = self.client.get('/')
+        self.assertIn('3 week(s) ago', response.content.decode())
+
+        Item.objects.create(text='item 3', creation_time=timezone.now() - timedelta(days=6))
+        response = self.client.get('/')
+        self.assertIn('6 day(s) ago', response.content.decode())
+
+        Item.objects.create(text='item 4', creation_time=timezone.now() - timedelta(hours=10))
+        response = self.client.get('/')
+        self.assertIn('10 hour(s) ago', response.content.decode())
+
+        Item.objects.create(text='item 5', creation_time=timezone.now() - timedelta(minutes=45))
+        response = self.client.get('/')
+        self.assertIn('45 minute(s) ago', response.content.decode())
+
+        Item.objects.create(text='item 6', creation_time=timezone.now() - timedelta(seconds=32))
+        response = self.client.get('/')
+        self.assertIn('32 second(s) ago', response.content.decode())
+
+        Item.objects.create(text='item 7')
+        response = self.client.get('/')
+        self.assertIn('Just now', response.content.decode())
