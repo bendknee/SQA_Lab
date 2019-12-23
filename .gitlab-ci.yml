@@ -9,7 +9,7 @@ UnitTest:
     - apt-get install -qqy python3-pip
     - pip3 install -r requirements.txt
   script:
-    - coverage run --source=lists,accounts manage.py test lists accounts
+    - coverage run --source=lists,accounts --omit="*apps*","*admin*" manage.py test lists accounts
   after_script:
     - coverage report -m
 
